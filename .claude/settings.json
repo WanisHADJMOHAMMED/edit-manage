@@ -7,7 +7,10 @@
       "Bash(ls \"c:/Users/Wanis/.claude/projects/c--Wanis-Hadj-Mohammed-edit-manage/memory/\" 2>&1)",
       "Read(//c/Users/Wanis/.claude/projects/c--Wanis-Hadj-Mohammed-edit-manage/**)",
       "Bash(mkdir -p \"C:/Users/Wanis/.claude/projects/c--Wanis-Hadj-Mohammed-edit-manage/memory\")",
-      "Bash(npm list *)"
+      "Bash(npm list *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
     ],
     "additionalDirectories": [
       "C:\\Users\\Wanis\\.claude\\projects\\c--Wanis-Hadj-Mohammed-edit-manage"
