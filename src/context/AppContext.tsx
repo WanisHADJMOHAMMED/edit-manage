@@ -29,6 +29,7 @@ interface AppContextType {
   createProject: (data: Partial<Project>) => Promise<Project | null>
   updateProject: (id: string, data: Partial<Project>) => Promise<void>
   deleteProject: (id: string) => Promise<void>
+  duplicateProject: (id: string) => Promise<void>
 
   createEditor: (data: Partial<Editor>) => Promise<Editor | null>
   updateEditor: (id: string, data: Partial<Editor>) => Promise<void>
@@ -137,6 +138,37 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const deleteProject = async (id: string) => {
     const { error } = await supabase.from('projects').delete().eq('id', id)
     if (error) console.error(error)
+    await refetch()
+  }
+
+  const duplicateProject = async (id: string) => {
+    const original = projects.find((p) => p.id === id)
+    if (!original) return
+    const { data: newProject, error } = await supabase
+      .from('projects')
+      .insert({
+        client_name: original.client_name + ' (copy)',
+        project_type_id: original.project_type_id,
+        deal_price: original.deal_price,
+        deadline: original.deadline,
+        stage: original.stage,
+        notes: original.notes,
+      })
+      .select()
+      .single()
+    if (error || !newProject) { console.error(error); return }
+    const stakeholders = original.stakeholders ?? []
+    if (stakeholders.length > 0) {
+      await supabase.from('project_stakeholders').insert(
+        stakeholders.map((s) => ({
+          project_id: newProject.id,
+          role: s.role,
+          name: s.name,
+          editor_id: s.editor_id,
+          cost: s.cost,
+        })),
+      )
+    }
     await refetch()
   }
 
@@ -255,7 +287,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       value={{
         projects, editors, projectTypes, editorAssignments,
         loading, error, refetch,
-        createProject, updateProject, deleteProject,
+        createProject, updateProject, deleteProject, duplicateProject,
         createEditor, updateEditor, deleteEditor,
         createProjectType, updateProjectType, deleteProjectType,
         saveStakeholders,

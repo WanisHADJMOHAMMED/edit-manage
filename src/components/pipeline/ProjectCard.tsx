@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
-import { Calendar, User, Trash2, X } from 'lucide-react'
+import { Calendar, User, Trash2, X, Copy } from 'lucide-react'
 import { motion } from 'framer-motion'
 import type { Project } from '@/lib/types'
 import Badge from '@/components/ui/Badge'
@@ -17,8 +17,9 @@ interface Props {
 }
 
 export default function ProjectCard({ project, onClick, isDragOverlay }: Props) {
-  const { deleteProject } = useApp()
+  const { deleteProject, duplicateProject } = useApp()
   const [confirming, setConfirming] = useState(false)
+  const [duplicating, setDuplicating] = useState(false)
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: project.id,
@@ -48,6 +49,13 @@ export default function ProjectCard({ project, onClick, isDragOverlay }: Props) 
   const handleCancelClick = (e: React.MouseEvent) => {
     e.stopPropagation()
     setConfirming(false)
+  }
+
+  const handleDuplicate = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setDuplicating(true)
+    await duplicateProject(project.id)
+    setDuplicating(false)
   }
 
   return (
@@ -106,6 +114,16 @@ export default function ProjectCard({ project, onClick, isDragOverlay }: Props) 
               style={{ backgroundColor: marginDot(marginPct) }}
               title={`Margin: ${Math.round(marginPct)}%`}
             />
+            <motion.button
+              onClick={handleDuplicate}
+              whileHover={{ scale: 1.15 }}
+              whileTap={{ scale: 0.9 }}
+              disabled={duplicating}
+              className="opacity-0 group-hover:opacity-100 text-navy/30 hover:text-brand transition-all p-0.5 rounded-lg disabled:opacity-40"
+              title="Duplicate project"
+            >
+              <Copy size={12} />
+            </motion.button>
             <motion.button
               onClick={handleConfirmClick}
               whileHover={{ scale: 1.15 }}
