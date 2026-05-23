@@ -1,0 +1,181 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --navy: #0C224B;
+  --brand: #2AA4E7;
+  --ocean: #0A60AD;
+  --cream: #FFFAE6;
+  --mist: #E9FCFF;
+  --frost: #A9EFFB;
+  --silver: #E8EBEF;
+}
+
+html,
+body {
+  background-color: #E9FCFF;
+  color: #0C224B;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  height: 100%;
+}
+
+/* ── Animated background blobs ── */
+.blob {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
+}
+
+.blob-1 {
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(circle, #A9EFFB 0%, #E9FCFF 70%);
+  top: -200px;
+  left: -150px;
+  opacity: 0.7;
+  animation: blob-move1 14s ease-in-out infinite;
+}
+
+.blob-2 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, #2AA4E7 0%, transparent 70%);
+  top: 40%;
+  right: -100px;
+  opacity: 0.12;
+  animation: blob-move2 18s ease-in-out infinite;
+}
+
+.blob-3 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, #A9EFFB 0%, #E9FCFF 60%);
+  bottom: -150px;
+  left: 25%;
+  opacity: 0.5;
+  animation: blob-move3 16s ease-in-out infinite;
+}
+
+@keyframes blob-move1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(30px, -40px) scale(1.06); }
+  66%       { transform: translate(-20px, 25px) scale(0.94); }
+}
+
+@keyframes blob-move2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(-40px, 30px) scale(1.08); }
+  66%       { transform: translate(25px, -20px) scale(0.92); }
+}
+
+@keyframes blob-move3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(20px, 35px) scale(1.05); }
+  66%       { transform: translate(-30px, -15px) scale(0.96); }
+}
+
+/* ── Glass utilities ── */
+.glass {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow:
+    0 4px 24px rgba(10, 96, 173, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.glass-sm {
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 2px 12px rgba(10, 96, 173, 0.06);
+}
+
+.glass-sidebar {
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border-right: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 4px 0 32px rgba(10, 96, 173, 0.07);
+}
+
+.glass-nav {
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 -4px 24px rgba(10, 96, 173, 0.07);
+}
+
+/* ── Custom scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: rgba(233, 252, 255, 0.5); }
+::-webkit-scrollbar-thumb { background: rgba(42, 164, 231, 0.3); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(42, 164, 231, 0.55); }
+
+/* ── Form inputs ── */
+input[type='text'],
+input[type='number'],
+input[type='date'],
+input[type='email'],
+input[type='tel'],
+textarea,
+select {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(42, 164, 231, 0.25);
+  color: #0C224B;
+  border-radius: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  width: 100%;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #2AA4E7;
+  box-shadow: 0 0 0 3px rgba(42, 164, 231, 0.18);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(12, 34, 75, 0.38);
+}
+
+select option {
+  background: #E9FCFF;
+  color: #0C224B;
+}
+
+/* ── Gantt timeline ── */
+.gantt-block {
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: default;
+  transition: opacity 0.15s;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.gantt-block:hover { opacity: 0.82; }

@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(ls \"c:/Users/Wanis/.claude/projects/c--Wanis-Hadj-Mohammed-edit-manage/memory/\" 2>&1)",
+      "Read(//c/Users/Wanis/.claude/projects/c--Wanis-Hadj-Mohammed-edit-manage/**)",
+      "Bash(mkdir -p \"C:/Users/Wanis/.claude/projects/c--Wanis-Hadj-Mohammed-edit-manage/memory\")",
+      "Bash(npm list *)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\Wanis\\.claude\\projects\\c--Wanis-Hadj-Mohammed-edit-manage"
+    ]
+  }
+}
