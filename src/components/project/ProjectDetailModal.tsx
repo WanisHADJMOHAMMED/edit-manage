@@ -22,7 +22,7 @@ type StakeholderDraft = {
   cost: string
 }
 
-const ROLES: StakeholderRole[] = ['filmmaker', 'media_face', 'voiceover', 'editor']
+const ROLES: StakeholderRole[] = ['filmmaker', 'media_face', 'voiceover', 'scriptwriter', 'editor']
 
 function defaultDraft(role: StakeholderRole, existing?: Stakeholder): StakeholderDraft {
   return {

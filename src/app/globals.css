@@ -125,6 +125,7 @@ input[type='number'],
 input[type='date'],
 input[type='email'],
 input[type='tel'],
+input[type='password'],
 textarea,
 select {
   background: rgba(255, 255, 255, 0.55);
@@ -151,6 +152,15 @@ select:focus {
 input::placeholder,
 textarea::placeholder {
   color: rgba(12, 34, 75, 0.38);
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.7) inset;
+  -webkit-text-fill-color: #0C224B;
+  border-color: rgba(42, 164, 231, 0.25);
+  transition: background-color 9999s ease-in-out 0s;
 }
 
 select option {

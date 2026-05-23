@@ -1,19 +1,46 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
+import { useEffect } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import Sidebar from './Sidebar'
 import BottomNav from './BottomNav'
+import { useAuth } from '@/context/AuthContext'
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const router = useRouter()
+  const { user, authLoading } = useAuth()
+
+  useEffect(() => {
+    if (!authLoading && !user) router.replace('/login')
+  }, [user, authLoading, router])
+
+  if (authLoading || !user) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ background: 'linear-gradient(135deg, #E9FCFF 0%, #A9EFFB 45%, #E8EBEF 100%)' }}
+      >
+        <div className="blob blob-1" aria-hidden />
+        <div className="blob blob-2" aria-hidden />
+        <div className="blob blob-3" aria-hidden />
+        <motion.div
+          animate={{ opacity: [0.4, 1, 0.4] }}
+          transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+          className="relative z-10 text-brand font-semibold text-sm"
+        >
+          Loading…
+        </motion.div>
+      </div>
+    )
+  }
 
   return (
     <div
       className="min-h-screen"
       style={{ background: 'linear-gradient(135deg, #E9FCFF 0%, #A9EFFB 45%, #E8EBEF 100%)' }}
     >
-      {/* Animated blobs */}
       <div className="blob blob-1" aria-hidden />
       <div className="blob blob-2" aria-hidden />
       <div className="blob blob-3" aria-hidden />

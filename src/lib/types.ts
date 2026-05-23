@@ -1,6 +1,6 @@
 export type ProjectStage = 'incoming' | 'pre-production' | 'shooting' | 'editing' | 'delivered'
 export type EditorSpecialty = 'talking_head' | 'motion' | 'both'
-export type StakeholderRole = 'filmmaker' | 'media_face' | 'voiceover' | 'editor'
+export type StakeholderRole = 'filmmaker' | 'media_face' | 'voiceover' | 'scriptwriter' | 'editor'
 
 export interface ProjectType {
   id: string
@@ -85,6 +85,7 @@ export const STAKEHOLDER_LABELS: Record<StakeholderRole, string> = {
   filmmaker: 'Filmmaker',
   media_face: 'Media Face',
   voiceover: 'Voice Over',
+  scriptwriter: 'Scriptwriter',
   editor: 'Editor',
 }
 

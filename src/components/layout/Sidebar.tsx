@@ -3,9 +3,10 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { Kanban, Calendar, DollarSign, Settings, LayoutDashboard } from 'lucide-react'
+import { Kanban, Calendar, DollarSign, Settings, LayoutDashboard, LogOut } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/context/AuthContext'
 
 const links = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -26,6 +27,7 @@ const linkVariant = {
 
 export default function Sidebar() {
   const pathname = usePathname()
+  const { signOut } = useAuth()
 
   return (
     <aside className="hidden lg:flex flex-col w-56 min-h-screen glass-sidebar fixed left-0 top-0 bottom-0 z-30">
@@ -38,6 +40,7 @@ export default function Sidebar() {
             width={96}
             height={36}
             className="object-contain object-left"
+            style={{ height: 'auto' }}
             priority
           />
         </div>
@@ -71,9 +74,19 @@ export default function Sidebar() {
         })}
       </motion.nav>
 
-      <div className="px-5 py-4 border-t border-white/40">
-        <p className="text-navy/35 text-[10px] font-medium">Zidny Agency</p>
-        <p className="text-navy/25 text-[10px]">V1.0</p>
+      <div className="px-3 py-4 border-t border-white/40 space-y-3">
+        <div className="px-2">
+          <p className="text-navy/35 text-[10px] font-medium">Zidny Agency</p>
+          <p className="text-navy/25 text-[10px]">V1.0</p>
+        </div>
+        <motion.button
+          onClick={signOut}
+          whileHover={{ x: 3 }} whileTap={{ scale: 0.97 }}
+          className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-sm font-medium text-navy/45 hover:text-red-500 hover:bg-red-50 transition-colors"
+        >
+          <LogOut size={15} />
+          Sign Out
+        </motion.button>
       </div>
     </aside>
   )
