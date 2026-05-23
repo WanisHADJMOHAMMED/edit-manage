@@ -57,6 +57,7 @@ export default function ProjectDetailModal({ project, onClose }: Props) {
     }),
   )
   const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   useEffect(() => {
@@ -84,6 +85,7 @@ export default function ProjectDetailModal({ project, onClose }: Props) {
 
   const handleSave = async () => {
     setSaving(true)
+    setSaveError(null)
     await updateProject(project.id, {
       client_name: clientName.trim() || project.client_name,
       project_type_id: projectTypeId || null,
@@ -100,8 +102,12 @@ export default function ProjectDetailModal({ project, onClose }: Props) {
         editor_id: d.role === 'editor' ? (d.editor_id || null) : null,
         cost: parseFloat(d.cost) || 0,
       }))
-    await saveStakeholders(project.id, stakeholdersToSave)
+    const err = await saveStakeholders(project.id, stakeholdersToSave)
     setSaving(false)
+    if (err) {
+      setSaveError('Failed to save stakeholders. Run the SQL migration in Supabase to add the scriptwriter role.')
+      return
+    }
     onClose()
   }
 
@@ -225,6 +231,12 @@ export default function ProjectDetailModal({ project, onClose }: Props) {
             </div>
           </div>
         </section>
+
+        {saveError && (
+          <div className="bg-red-50 border border-red-200 rounded-xl px-3 py-2.5 text-red-600 text-xs font-medium">
+            {saveError}
+          </div>
+        )}
 
         {/* Actions */}
         <div className="flex items-center gap-2 pt-1">

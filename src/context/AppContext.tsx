@@ -38,7 +38,7 @@ interface AppContextType {
   updateProjectType: (id: string, data: Partial<ProjectType>) => Promise<void>
   deleteProjectType: (id: string) => Promise<void>
 
-  saveStakeholders: (projectId: string, stakeholders: Omit<Stakeholder, 'id' | 'project_id'>[]) => Promise<void>
+  saveStakeholders: (projectId: string, stakeholders: Omit<Stakeholder, 'id' | 'project_id'>[]) => Promise<string | null>
 
   createAssignment: (data: Omit<EditorAssignment, 'id' | 'created_at' | 'editor' | 'project'>) => Promise<EditorAssignment | null>
   updateAssignment: (id: string, data: Partial<EditorAssignment>) => Promise<void>
@@ -192,16 +192,36 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const saveStakeholders = async (
     projectId: string,
     newStakeholders: Omit<Stakeholder, 'id' | 'project_id'>[],
-  ) => {
-    await supabase.from('project_stakeholders').delete().eq('project_id', projectId)
+  ): Promise<string | null> => {
     const toInsert = newStakeholders
       .filter((s) => s.name.trim() !== '' || s.cost > 0)
       .map((s) => ({ ...s, project_id: projectId }))
+
+    // 1. Snapshot existing IDs before touching anything
+    const { data: existing } = await supabase
+      .from('project_stakeholders')
+      .select('id')
+      .eq('project_id', projectId)
+    const oldIds = (existing ?? []).map((r) => r.id)
+
+    // 2. Insert new rows — if this fails, old data is still intact
     if (toInsert.length > 0) {
-      const { error } = await supabase.from('project_stakeholders').insert(toInsert)
-      if (error) console.error(error)
+      const { error: insertError } = await supabase
+        .from('project_stakeholders')
+        .insert(toInsert)
+      if (insertError) {
+        console.error('Stakeholder insert failed:', insertError)
+        return insertError.message
+      }
     }
+
+    // 3. Delete old rows by ID — only runs after insert confirmed OK
+    if (oldIds.length > 0) {
+      await supabase.from('project_stakeholders').delete().in('id', oldIds)
+    }
+
     await refetch()
+    return null
   }
 
   // ── Assignment mutations ─────────────────────────────────────
