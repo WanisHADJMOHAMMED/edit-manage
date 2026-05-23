@@ -149,6 +149,13 @@ export default function ProjectCard({ project, onClick, isDragOverlay }: Props) 
           </div>
         )}
 
+        {/* Notes */}
+        {project.notes && (
+          <p className="text-navy/45 text-[11px] leading-relaxed mb-2 line-clamp-2">
+            {project.notes}
+          </p>
+        )}
+
         {/* Bottom row */}
         <div className="flex items-center justify-between mt-1 gap-2">
           <span className="text-navy font-bold text-xs">
