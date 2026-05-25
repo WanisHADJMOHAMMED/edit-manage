@@ -3,10 +3,12 @@
 import { useState, useMemo } from 'react'
 import { ArrowUpDown, Trash2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import type { Project } from '@/lib/types'
 import { STAGE_LABELS } from '@/lib/types'
 import { useApp } from '@/context/AppContext'
 import Badge from '@/components/ui/Badge'
 import { formatDZD, calcMargin, marginBg, formatDate } from '@/lib/utils'
+import ProjectDetailModal from '@/components/project/ProjectDetailModal'
 
 type SortKey = 'margin' | 'deal_price' | 'deadline' | 'margin_pct'
 type SortDir = 'asc' | 'desc'
@@ -18,6 +20,7 @@ export default function FinanceTable() {
   const [sortKey, setSortKey] = useState<SortKey>('margin_pct')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const [confirmId, setConfirmId] = useState<string | null>(null)
+  const [editProject, setEditProject] = useState<Project | null>(null)
 
   const rows = useMemo(() => {
     return projects
@@ -25,13 +28,14 @@ export default function FinanceTable() {
       .filter((p) => !filterType || p.project_type_id === filterType)
       .map((p) => {
         const s = p.stakeholders ?? []
-        const filmmakerCost = s.find((sh) => sh.role === 'filmmaker')?.cost ?? 0
-        const mediaFaceCost = s.find((sh) => sh.role === 'media_face')?.cost ?? 0
-        const voiceOverCost = s.find((sh) => sh.role === 'voiceover')?.cost ?? 0
-        const editorCost = s.find((sh) => sh.role === 'editor')?.cost ?? 0
-        const totalCost = filmmakerCost + mediaFaceCost + voiceOverCost + editorCost
+        const filmmakerCost     = s.find((sh) => sh.role === 'filmmaker')?.cost ?? 0
+        const mediaFaceCost     = s.find((sh) => sh.role === 'media_face')?.cost ?? 0
+        const voiceOverCost     = s.find((sh) => sh.role === 'voiceover')?.cost ?? 0
+        const scriptwriterCost  = s.find((sh) => sh.role === 'scriptwriter')?.cost ?? 0
+        const editorCost        = s.find((sh) => sh.role === 'editor')?.cost ?? 0
+        const totalCost = filmmakerCost + mediaFaceCost + voiceOverCost + scriptwriterCost + editorCost
         const { margin, marginPct } = calcMargin(p.deal_price ?? 0, totalCost)
-        return { p, filmmakerCost, mediaFaceCost, voiceOverCost, editorCost, totalCost, margin, marginPct }
+        return { p, filmmakerCost, mediaFaceCost, voiceOverCost, scriptwriterCost, editorCost, totalCost, margin, marginPct }
       })
       .sort((a, b) => {
         let va = 0, vb = 0
@@ -85,7 +89,7 @@ export default function FinanceTable() {
 
       {/* Table */}
       <div className="overflow-x-auto glass rounded-2xl">
-        <table className="w-full text-xs min-w-[960px]">
+        <table className="w-full text-xs min-w-[1060px]">
           <thead>
             <tr className="border-b border-white/50 text-navy/50">
               <th className="text-left px-4 py-3.5 font-semibold">Project</th>
@@ -95,6 +99,7 @@ export default function FinanceTable() {
               <th className="text-right px-4 py-3.5 font-semibold">Filmmaker</th>
               <th className="text-right px-4 py-3.5 font-semibold">Media Face</th>
               <th className="text-right px-4 py-3.5 font-semibold">Voice Over</th>
+              <th className="text-right px-4 py-3.5 font-semibold">Scriptwriter</th>
               <th className="text-right px-4 py-3.5 font-semibold">Editor</th>
               <th className="text-right px-4 py-3.5 font-semibold">Total Cost</th>
               <th className="text-right px-4 py-3.5 font-semibold"><SortBtn k="margin" label="Margin" /></th>
@@ -104,22 +109,24 @@ export default function FinanceTable() {
             </tr>
           </thead>
           <tbody>
-            {rows.map(({ p, filmmakerCost, mediaFaceCost, voiceOverCost, editorCost, totalCost, margin, marginPct }, i) => (
+            {rows.map(({ p, filmmakerCost, mediaFaceCost, voiceOverCost, scriptwriterCost, editorCost, totalCost, margin, marginPct }, i) => (
               <motion.tr
                 key={p.id}
                 initial={{ opacity: 0, x: -8 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.03, type: 'spring' as const, stiffness: 400, damping: 30 }}
-                className="border-b border-white/30 hover:bg-white/35 transition-colors group"
+                onClick={() => setEditProject(p)}
+                className="border-b border-white/30 hover:bg-white/35 transition-colors group cursor-pointer"
               >
                 <td className="px-4 py-3 text-navy font-semibold max-w-[140px] truncate">{p.client_name}</td>
                 <td className="px-4 py-3"><Badge projectType={p.project_type} small /></td>
                 <td className="px-4 py-3 text-navy/55">{STAGE_LABELS[p.stage]}</td>
                 <td className="px-4 py-3 text-right text-navy font-medium">{formatDZD(p.deal_price ?? 0)}</td>
-                <td className="px-4 py-3 text-right text-navy/50">{filmmakerCost ? formatDZD(filmmakerCost) : '—'}</td>
-                <td className="px-4 py-3 text-right text-navy/50">{mediaFaceCost ? formatDZD(mediaFaceCost) : '—'}</td>
-                <td className="px-4 py-3 text-right text-navy/50">{voiceOverCost ? formatDZD(voiceOverCost) : '—'}</td>
-                <td className="px-4 py-3 text-right text-navy/50">{editorCost ? formatDZD(editorCost) : '—'}</td>
+                <td className="px-4 py-3 text-right text-navy/50">{filmmakerCost    ? formatDZD(filmmakerCost)    : '—'}</td>
+                <td className="px-4 py-3 text-right text-navy/50">{mediaFaceCost    ? formatDZD(mediaFaceCost)    : '—'}</td>
+                <td className="px-4 py-3 text-right text-navy/50">{voiceOverCost    ? formatDZD(voiceOverCost)    : '—'}</td>
+                <td className="px-4 py-3 text-right text-navy/50">{scriptwriterCost ? formatDZD(scriptwriterCost) : '—'}</td>
+                <td className="px-4 py-3 text-right text-navy/50">{editorCost       ? formatDZD(editorCost)       : '—'}</td>
                 <td className="px-4 py-3 text-right text-navy font-medium">{formatDZD(totalCost)}</td>
                 <td className="px-4 py-3 text-right text-navy font-semibold">{formatDZD(margin)}</td>
                 <td className="px-4 py-3 text-right">
@@ -128,7 +135,7 @@ export default function FinanceTable() {
                   </span>
                 </td>
                 <td className="px-4 py-3 text-right text-navy/50">{formatDate(p.deadline)}</td>
-                <td className="px-2 py-3 text-right">
+                <td className="px-2 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                   <AnimatePresence mode="wait">
                     {confirmId === p.id ? (
                       <motion.div
@@ -171,7 +178,7 @@ export default function FinanceTable() {
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={13} className="text-center py-12 text-navy/30">No projects found</td>
+                <td colSpan={14} className="text-center py-12 text-navy/30">No projects found</td>
               </tr>
             )}
           </tbody>
@@ -180,7 +187,7 @@ export default function FinanceTable() {
               <tr className="border-t border-white/50 font-semibold bg-white/20">
                 <td className="px-4 py-3.5 text-navy/55" colSpan={3}>Total ({rows.length} projects)</td>
                 <td className="px-4 py-3.5 text-right text-navy font-bold">{formatDZD(summary.total)}</td>
-                <td colSpan={4} />
+                <td colSpan={5} />
                 <td className="px-4 py-3.5 text-right text-navy font-bold">{formatDZD(summary.totalCost)}</td>
                 <td className="px-4 py-3.5 text-right text-navy font-bold">{formatDZD(summary.totalMargin)}</td>
                 <td className="px-4 py-3.5 text-right">
@@ -194,6 +201,10 @@ export default function FinanceTable() {
           )}
         </table>
       </div>
+
+      {editProject && (
+        <ProjectDetailModal project={editProject} onClose={() => setEditProject(null)} />
+      )}
     </div>
   )
 }

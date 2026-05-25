@@ -1,13 +1,14 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { ChevronDown, ChevronUp, Trash2 } from 'lucide-react'
+import { ChevronDown, ChevronUp, Trash2, Pencil } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import type { ProjectStage } from '@/lib/types'
+import type { Project } from '@/lib/types'
 import { STAGE_LABELS } from '@/lib/types'
 import { useApp } from '@/context/AppContext'
 import Badge from '@/components/ui/Badge'
 import { formatDZD, calcMargin, marginBg } from '@/lib/utils'
+import ProjectDetailModal from '@/components/project/ProjectDetailModal'
 
 export default function FinanceCards() {
   const { projects, projectTypes, deleteProject } = useApp()
@@ -15,6 +16,7 @@ export default function FinanceCards() {
   const [filterType, setFilterType] = useState('')
   const [expanded, setExpanded] = useState<string | null>(null)
   const [confirmId, setConfirmId] = useState<string | null>(null)
+  const [editProject, setEditProject] = useState<Project | null>(null)
 
   const rows = useMemo(() => {
     return projects
@@ -22,13 +24,14 @@ export default function FinanceCards() {
       .filter((p) => !filterType || p.project_type_id === filterType)
       .map((p) => {
         const s = p.stakeholders ?? []
-        const filmmakerCost = s.find((sh) => sh.role === 'filmmaker')?.cost ?? 0
-        const mediaFaceCost = s.find((sh) => sh.role === 'media_face')?.cost ?? 0
-        const voiceOverCost = s.find((sh) => sh.role === 'voiceover')?.cost ?? 0
-        const editorCost = s.find((sh) => sh.role === 'editor')?.cost ?? 0
-        const totalCost = filmmakerCost + mediaFaceCost + voiceOverCost + editorCost
+        const filmmakerCost     = s.find((sh) => sh.role === 'filmmaker')?.cost ?? 0
+        const mediaFaceCost     = s.find((sh) => sh.role === 'media_face')?.cost ?? 0
+        const voiceOverCost     = s.find((sh) => sh.role === 'voiceover')?.cost ?? 0
+        const scriptwriterCost  = s.find((sh) => sh.role === 'scriptwriter')?.cost ?? 0
+        const editorCost        = s.find((sh) => sh.role === 'editor')?.cost ?? 0
+        const totalCost = filmmakerCost + mediaFaceCost + voiceOverCost + scriptwriterCost + editorCost
         const { margin, marginPct } = calcMargin(p.deal_price ?? 0, totalCost)
-        return { p, filmmakerCost, mediaFaceCost, voiceOverCost, editorCost, totalCost, margin, marginPct }
+        return { p, filmmakerCost, mediaFaceCost, voiceOverCost, scriptwriterCost, editorCost, totalCost, margin, marginPct }
       })
   }, [projects, filterStage, filterType])
 
@@ -60,7 +63,7 @@ export default function FinanceCards() {
       {/* Cards */}
       <div className="space-y-2">
         <AnimatePresence>
-          {rows.map(({ p, filmmakerCost, mediaFaceCost, voiceOverCost, editorCost, totalCost, margin, marginPct }, i) => {
+          {rows.map(({ p, filmmakerCost, mediaFaceCost, voiceOverCost, scriptwriterCost, editorCost, totalCost, margin, marginPct }, i) => {
             const isOpen = expanded === p.id
             return (
               <motion.div
@@ -98,8 +101,17 @@ export default function FinanceCards() {
                     </div>
                   </button>
 
-                  {/* Delete button */}
-                  <div className="flex items-center px-3 border-l border-white/40">
+                  {/* Actions */}
+                  <div className="flex flex-col items-center justify-center px-3 gap-1 border-l border-white/40">
+                    <motion.button
+                      onClick={() => setEditProject(p)}
+                      whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.9 }}
+                      className="p-2 text-navy/25 hover:text-brand hover:bg-brand/10 rounded-xl transition-colors"
+                      title="Edit project"
+                    >
+                      <Pencil size={13} />
+                    </motion.button>
+
                     <AnimatePresence mode="wait">
                       {confirmId === p.id ? (
                         <motion.div
@@ -133,7 +145,7 @@ export default function FinanceCards() {
                           whileTap={{ scale: 0.9 }}
                           className="p-2 text-navy/25 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors"
                         >
-                          <Trash2 size={14} />
+                          <Trash2 size={13} />
                         </motion.button>
                       )}
                     </AnimatePresence>
@@ -167,6 +179,12 @@ export default function FinanceCards() {
                           <div className="flex justify-between text-xs">
                             <span className="text-navy/50">Voice Over</span>
                             <span className="text-navy font-medium">{formatDZD(voiceOverCost)}</span>
+                          </div>
+                        )}
+                        {scriptwriterCost > 0 && (
+                          <div className="flex justify-between text-xs">
+                            <span className="text-navy/50">Scriptwriter</span>
+                            <span className="text-navy font-medium">{formatDZD(scriptwriterCost)}</span>
                           </div>
                         )}
                         {editorCost > 0 && (
@@ -207,6 +225,10 @@ export default function FinanceCards() {
             </div>
           </div>
         </div>
+      )}
+
+      {editProject && (
+        <ProjectDetailModal project={editProject} onClose={() => setEditProject(null)} />
       )}
     </div>
   )
