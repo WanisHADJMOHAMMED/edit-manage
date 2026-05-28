@@ -3,9 +3,10 @@
 import { useState } from 'react'
 import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
-import { Calendar, User, Trash2, X, Copy } from 'lucide-react'
+import { Calendar, User, Trash2, X, Copy, ChevronLeft, ChevronRight } from 'lucide-react'
 import { motion } from 'framer-motion'
-import type { Project } from '@/lib/types'
+import type { Project, ProjectStage } from '@/lib/types'
+import { STAGES, STAGE_LABELS } from '@/lib/types'
 import Badge from '@/components/ui/Badge'
 import { formatDZD, formatDate, calcMargin, marginDot } from '@/lib/utils'
 import { useApp } from '@/context/AppContext'
@@ -17,9 +18,18 @@ interface Props {
 }
 
 export default function ProjectCard({ project, onClick, isDragOverlay }: Props) {
-  const { deleteProject, duplicateProject } = useApp()
+  const { deleteProject, duplicateProject, updateProject } = useApp()
   const [confirming, setConfirming] = useState(false)
   const [duplicating, setDuplicating] = useState(false)
+
+  const stageIndex = STAGES.indexOf(project.stage)
+  const prevStage = stageIndex > 0 ? STAGES[stageIndex - 1] : null
+  const nextStage = stageIndex < STAGES.length - 1 ? STAGES[stageIndex + 1] : null
+
+  const handleMove = (e: React.MouseEvent, stage: ProjectStage) => {
+    e.stopPropagation()
+    updateProject(project.id, { stage })
+  }
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: project.id,
@@ -154,6 +164,32 @@ export default function ProjectCard({ project, onClick, isDragOverlay }: Props) 
           <p className="text-navy/45 text-[11px] leading-relaxed mb-2 line-clamp-2">
             {project.notes}
           </p>
+        )}
+
+        {/* Quick-move arrows */}
+        {!isDragOverlay && !confirming && (
+          <div className="flex items-center justify-between mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+            {prevStage ? (
+              <motion.button
+                onClick={(e) => handleMove(e, prevStage)}
+                whileHover={{ scale: 1.08, x: -1 }} whileTap={{ scale: 0.93 }}
+                className="flex items-center gap-0.5 text-[10px] text-navy/35 hover:text-brand transition-colors"
+              >
+                <ChevronLeft size={11} />
+                <span>{STAGE_LABELS[prevStage]}</span>
+              </motion.button>
+            ) : <span />}
+            {nextStage ? (
+              <motion.button
+                onClick={(e) => handleMove(e, nextStage)}
+                whileHover={{ scale: 1.08, x: 1 }} whileTap={{ scale: 0.93 }}
+                className="flex items-center gap-0.5 text-[10px] text-navy/35 hover:text-brand transition-colors"
+              >
+                <span>{STAGE_LABELS[nextStage]}</span>
+                <ChevronRight size={11} />
+              </motion.button>
+            ) : <span />}
+          </div>
         )}
 
         {/* Bottom row */}

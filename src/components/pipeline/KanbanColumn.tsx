@@ -5,7 +5,7 @@ import { Plus } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { Project, ProjectStage } from '@/lib/types'
 import { STAGE_LABELS } from '@/lib/types'
-import { cn } from '@/lib/utils'
+import { cn, formatDZD } from '@/lib/utils'
 import ProjectCard from './ProjectCard'
 
 interface Props {
@@ -26,32 +26,39 @@ const STAGE_COLORS: Record<ProjectStage, { dot: string; border: string; label: s
 export default function KanbanColumn({ stage, projects, onCardClick, onAddProject }: Props) {
   const { setNodeRef, isOver } = useDroppable({ id: stage })
   const colors = STAGE_COLORS[stage]
+  const totalValue = projects.reduce((s, p) => s + (p.deal_price ?? 0), 0)
 
   return (
     <div className="flex flex-col w-72 shrink-0">
       {/* Header */}
-      <div className="flex items-center justify-between mb-3 px-1 pb-3"
-           style={{ borderBottom: `1px solid ${colors.border}` }}>
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: colors.dot }} />
-          <span className="text-navy font-semibold text-sm">{STAGE_LABELS[stage]}</span>
-          <span
-            className="text-xs font-semibold rounded-full px-2 py-0.5"
-            style={{ backgroundColor: colors.label, color: colors.dot }}
-          >
-            {projects.length}
-          </span>
+      <div className="mb-3 px-1 pb-3" style={{ borderBottom: `1px solid ${colors.border}` }}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: colors.dot }} />
+            <span className="text-navy font-semibold text-sm">{STAGE_LABELS[stage]}</span>
+            <span
+              className="text-xs font-semibold rounded-full px-2 py-0.5"
+              style={{ backgroundColor: colors.label, color: colors.dot }}
+            >
+              {projects.length}
+            </span>
+          </div>
+          {stage === 'incoming' && onAddProject && (
+            <motion.button
+              onClick={onAddProject}
+              whileHover={{ scale: 1.15, rotate: 90 }}
+              whileTap={{ scale: 0.9 }}
+              transition={{ type: 'spring' as const, stiffness: 500, damping: 25 }}
+              className="text-navy/40 hover:text-brand hover:bg-brand/10 p-1 rounded-lg transition-colors"
+            >
+              <Plus size={14} />
+            </motion.button>
+          )}
         </div>
-        {stage === 'incoming' && onAddProject && (
-          <motion.button
-            onClick={onAddProject}
-            whileHover={{ scale: 1.15, rotate: 90 }}
-            whileTap={{ scale: 0.9 }}
-            transition={{ type: 'spring' as const, stiffness: 500, damping: 25 }}
-            className="text-navy/40 hover:text-brand hover:bg-brand/10 p-1 rounded-lg transition-colors"
-          >
-            <Plus size={14} />
-          </motion.button>
+        {totalValue > 0 && (
+          <p className="text-navy/40 text-[11px] font-medium ml-4 mt-0.5">
+            {formatDZD(totalValue)}
+          </p>
         )}
       </div>
 

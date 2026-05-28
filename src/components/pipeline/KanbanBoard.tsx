@@ -6,6 +6,7 @@ import {
   type DragEndEvent, type DragStartEvent,
 } from '@dnd-kit/core'
 import { motion } from 'framer-motion'
+import { Search } from 'lucide-react'
 import type { Project, ProjectStage } from '@/lib/types'
 import { STAGES } from '@/lib/types'
 import { useApp } from '@/context/AppContext'
@@ -16,12 +17,14 @@ import ProjectDetailModal from '@/components/project/ProjectDetailModal'
 import NewProjectModal from './NewProjectModal'
 
 export default function KanbanBoard() {
-  const { projects, updateProject } = useApp()
+  const { projects, projectTypes, updateProject } = useApp()
   const [activeProject, setActiveProject] = useState<Project | null>(null)
   const [detailProject, setDetailProject] = useState<Project | null>(null)
   const [pendingProject, setPendingProject] = useState<Project | null>(null)
   const [showAssign, setShowAssign] = useState(false)
   const [showNew, setShowNew] = useState(false)
+  const [search, setSearch] = useState('')
+  const [filterTypeId, setFilterTypeId] = useState('')
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -47,10 +50,41 @@ export default function KanbanBoard() {
     }
   }
 
-  const byStage = (stage: ProjectStage) => projects.filter((p) => p.stage === stage)
+  const filtered = projects.filter((p) => {
+    const matchSearch = !search || p.client_name.toLowerCase().includes(search.toLowerCase())
+    const matchType = !filterTypeId || p.project_type_id === filterTypeId
+    return matchSearch && matchType
+  })
+
+  const byStage = (stage: ProjectStage) => filtered.filter((p) => p.stage === stage)
 
   return (
     <>
+      {/* Search + filter bar */}
+      <div className="px-6 pt-4 pb-1 flex gap-2 items-center">
+        <div className="relative flex-1 max-w-xs">
+          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-navy/30 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search projects…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ paddingLeft: '2rem' }}
+          />
+        </div>
+        <select
+          value={filterTypeId}
+          onChange={(e) => setFilterTypeId(e.target.value)}
+          className="text-xs"
+          style={{ width: 'auto' }}
+        >
+          <option value="">All Types</option>
+          {projectTypes.map((t) => (
+            <option key={t.id} value={t.id}>{t.name}</option>
+          ))}
+        </select>
+      </div>
+
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex gap-5 overflow-x-auto px-6 py-6 min-h-[calc(100dvh-64px)] items-start">
           {STAGES.map((stage) => (
