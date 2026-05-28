@@ -1,0 +1,23 @@
+{
+  "name": "Zidny",
+  "short_name": "Zidny",
+  "description": "Agency Project & Team Management Platform",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#0a60ad",
+  "theme_color": "#0a60ad",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ]
+}
